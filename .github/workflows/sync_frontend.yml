@@ -1,0 +1,16 @@
+name: Sync Frontend
+on:
+  push:
+    branches: [main]
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          git checkout frontend
+          git merge --no-commit --strategy-option=theirs main
+          # Exclude backend files
+          git checkout main -- app/ components/ lib/supabase.ts [...other frontend paths]
+          git commit -m "Sync frontend from main"
+          git push
