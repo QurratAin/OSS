@@ -19,11 +19,10 @@ jobs:
           git config --global user.name "GitHub Actions"
 
       - name: Sync to frontend branch
-        run: |
-          # Fetch all branches and tags
-          git fetch --all
+        run: git fetch --all
 
-          # Check if frontend branch exists remotely
+      - name: Check if frontend branch exists remotely
+        run: |  
           if git show-ref --quiet refs/remotes/origin/frontend; then
             git checkout frontend
             git reset --hard origin/main  # Reset to match main exactly
@@ -31,8 +30,9 @@ jobs:
             git checkout -b frontend
           fi
 
-          # Explicitly keep only frontend files
-          git checkout main -- \
+      - name: Explicitly keep only frontend files
+      - run: |
+            git checkout main -- \
             app/ \
             components/ \
             lib/supabase.ts \
@@ -47,11 +47,10 @@ jobs:
             tailwind.config.ts \
             tsconfig.json
 
-          # Commit changes
-          git add .
-          if ! git diff-index --quiet HEAD --; then
-            git commit -m "chore: sync frontend from main [skip ci]"
-            git push origin frontend
-          else
-            echo "No changes to sync"
-          fi
+            git add .
+            if ! git diff-index --quiet HEAD --; then
+              git commit -m "chore: sync frontend from main [skip ci]"
+              git push origin frontend
+            else
+              echo "No changes to sync"
+            fi
