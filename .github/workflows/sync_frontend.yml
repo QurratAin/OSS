@@ -6,11 +6,52 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: |
-          git checkout frontend
-          git merge --no-commit --strategy-option=theirs main
-          # Exclude backend files
-          git checkout main -- app/ components/ lib/supabase.ts [...other frontend paths]
-          git commit -m "Sync frontend from main"
-          git push
+      steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0  
+
+      - name: Setup Git
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+
+      - name: Sync to frontend branch
+        run: |
+          # Fetch all branches and tags
+          git fetch --all
+
+          # Check if frontend branch exists remotely
+          if git show-ref --quiet refs/remotes/origin/frontend; then
+            git checkout frontend
+            git reset --hard origin/main  # Reset to match main exactly
+          else
+            git checkout -b frontend
+          fi
+
+          # Explicitly keep only frontend files
+          git checkout main -- \
+            app/ \
+            components/ \
+            lib/supabase.ts \
+            hooks/ \
+            lib/ \
+            next.config.js \
+            package.json \
+            tsconfig.json \
+            next-env.d.ts \
+            components.json \
+            postcss.config.js \
+            tailwind.config.ts \
+            tsconfig.json
+
+          # Commit changes
+          git add .
+          if ! git diff-index --quiet HEAD --; then
+            git commit -m "chore: sync frontend from main [skip ci]"
+            git push origin frontend
+          else
+            echo "No changes to sync"
+          fi
