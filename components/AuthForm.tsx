@@ -21,8 +21,9 @@ export default function AuthForm() {
     setIsLoading(true);
 
     try {
+      const formattedPhone = phoneNumber.replace(/\D/g, '');
       const { error } = await supabase.auth.signInWithOtp({
-        phone: phoneNumber,
+        phone: formattedPhone,
       });
 
       if (error) throw error;
