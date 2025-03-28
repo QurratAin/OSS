@@ -85,6 +85,7 @@
     "undici": "^5.28.3",
     "utf-8-validate": "^6.0.5",
     "vaul": "^1.1.2",
+    "whatsapp-web.js": "^1.27.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

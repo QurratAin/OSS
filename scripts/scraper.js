@@ -50,7 +50,7 @@ async function findGroupByName(groupName) {
 
 // Get or create user by phone number and update name if needed
 async function getOrCreateUser(phoneNumber, userName = null) {
-  console.log(`phone: ${phoneNumber}, name: ${userName}`)
+  
   try {
     if (!phoneNumber) {
       console.error('Phone number is required');
