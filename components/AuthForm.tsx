@@ -22,21 +22,26 @@ export default function AuthForm() {
 
     try {
       const formattedPhone = phoneNumber.replace(/\D/g, '');
-      // Check public.users
+  
+      // Check public.users      
       const { data } = await supabase
         .from('users')
-        .select()
-        .eq('phone', formattedPhone)
+        .select('id')
+        .eq('phone_number', formattedPhone)
         .single()
 
       if (!data) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), {
           status: 403
         })}
-
+ 
       // proceed with otp      
       const { error } = await supabase.auth.signInWithOtp({
-        phone: '+' + formattedPhone,
+        phone: `+${formattedPhone}`,
+        options: {
+          shouldCreateUser: true,
+          channel: 'sms' // Force SMS instead of app links
+        }
       });
 
       if (error) throw error;
