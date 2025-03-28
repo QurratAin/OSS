@@ -22,6 +22,19 @@ export default function AuthForm() {
 
     try {
       const formattedPhone = phoneNumber.replace(/\D/g, '');
+      // Check public.users
+      const { data } = await supabase
+        .from('users')
+        .select()
+        .eq('phone', formattedPhone)
+        .single()
+
+      if (!data) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 403
+        })}
+
+      // proceed with otp      
       const { error } = await supabase.auth.signInWithOtp({
         phone: formattedPhone,
       });
@@ -33,6 +46,7 @@ export default function AuthForm() {
         title: 'OTP Sent',
         description: 'Please check your phone for the verification code.',
       });
+      
     } catch (error: any) {
       console.error('Error sending OTP:', error);
       toast({
