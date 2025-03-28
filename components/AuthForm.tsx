@@ -36,7 +36,7 @@ export default function AuthForm() {
 
       // proceed with otp      
       const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
+        phone: '+' + formattedPhone,
       });
 
       if (error) throw error;
