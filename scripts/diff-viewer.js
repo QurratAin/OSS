@@ -13,7 +13,15 @@ const jsondiffpatch = require('jsondiffpatch').create({
 // Initialize Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  {
+    global: {
+      headers: {
+        'Accept-Encoding': 'utf-8',
+        'Content-Type': 'application/json; charset=utf-8'
+      }
+    }
+  }
 );
 
 // Create a simple Express server to serve the diff viewer
@@ -45,10 +53,14 @@ app.post('/save', async (req, res) => {
 
 // Create a simple HTML page for viewing diffs
 const createHtml = (oldVersion, newVersion) => {
-    // Use encodeURIComponent to properly handle special characters
-    const oldData = encodeURIComponent(JSON.stringify(oldVersion));
-    const newData = encodeURIComponent(JSON.stringify(newVersion));
-    
+    const oldData = JSON.stringify(oldVersion)
+        .replace(/</g, '\\u003c')  // Escape < to prevent XSS
+        .replace(/\//g, '\\/');    // Escape / to prevent </script> issues
+        
+    const newData = JSON.stringify(newVersion)
+        .replace(/</g, '\\u003c')
+        .replace(/\//g, '\\/');
+        
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -105,15 +117,10 @@ const createHtml = (oldVersion, newVersion) => {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.js"><\/script>
     
     <script>
-        // Decode data with proper UTF-8 handling
-        function decodeJson(encoded) {
-            const decoded = decodeURIComponent(encoded);
-            return JSON.parse(decoded);
-        }
         
         // Initialize data
-        const oldVersion = decodeJson("${oldData}");
-        const newVersion = decodeJson("${newData}");
+        const oldVersion = ${oldData};
+        const newVersion = ${newData};
 
         function formatJson(obj) {
             return JSON.stringify(obj, null, 2);
