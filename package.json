@@ -10,7 +10,6 @@
     "scrape": "node scripts/scraper.js",
     "import-users": "node scripts/import-users.js",
     "analyze": "node scripts/analyze.js",
-    "validate": "electron scripts/checker.js",
     "diff": "node scripts/diff-viewer.js"
   },
   "dependencies": {
