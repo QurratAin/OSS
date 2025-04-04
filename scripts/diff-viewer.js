@@ -45,8 +45,9 @@ app.post('/save', async (req, res) => {
 
 // Create a simple HTML page for viewing diffs
 const createHtml = (oldVersion, newVersion) => {
-    const oldData = Buffer.from(JSON.stringify(oldVersion)).toString('base64');
-    const newData = Buffer.from(JSON.stringify(newVersion)).toString('base64');
+    // Use encodeURIComponent to properly handle special characters
+    const oldData = encodeURIComponent(JSON.stringify(oldVersion));
+    const newData = encodeURIComponent(JSON.stringify(newVersion));
     
     return `<!DOCTYPE html>
 <html lang="en">
@@ -104,15 +105,15 @@ const createHtml = (oldVersion, newVersion) => {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.js"><\/script>
     
     <script>
-        // Decode base64 data
-        function decodeBase64Json(base64) {
-            const text = atob(base64);
-            return JSON.parse(text);
+        // Decode data with proper UTF-8 handling
+        function decodeJson(encoded) {
+            const decoded = decodeURIComponent(encoded);
+            return JSON.parse(decoded);
         }
         
         // Initialize data
-        const oldVersion = decodeBase64Json("${oldData}");
-        const newVersion = decodeBase64Json("${newData}");
+        const oldVersion = decodeJson("${oldData}");
+        const newVersion = decodeJson("${newData}");
 
         function formatJson(obj) {
             return JSON.stringify(obj, null, 2);
@@ -133,7 +134,8 @@ const createHtml = (oldVersion, newVersion) => {
                     minimap: { enabled: false },
                     scrollBeyondLastLine: false,
                     renderLineHighlight: 'none',
-                    lineNumbers: 'on'
+                    lineNumbers: 'on',
+                    encoding: 'utf8'
                 });
 
                 window.newEditor = monaco.editor.create(document.getElementById('newVersion'), {
@@ -143,7 +145,8 @@ const createHtml = (oldVersion, newVersion) => {
                     minimap: { enabled: false },
                     scrollBeyondLastLine: false,
                     renderLineHighlight: 'none',
-                    lineNumbers: 'on'
+                    lineNumbers: 'on',
+                    encoding: 'utf8'
                 });
 
                 // Sync scrolling between old and new editors
@@ -162,7 +165,8 @@ const createHtml = (oldVersion, newVersion) => {
                     language: 'json',
                     minimap: { enabled: false },
                     scrollBeyondLastLine: false,
-                    lineNumbers: 'on'
+                    lineNumbers: 'on',
+                    encoding: 'utf8'
                 });
 
                 // Function to save changes
@@ -172,7 +176,7 @@ const createHtml = (oldVersion, newVersion) => {
                         const response = await fetch('/save', {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/json',
+                                'Content-Type': 'application/json; charset=utf-8',
                             },
                             body: JSON.stringify(updatedData)
                         });
