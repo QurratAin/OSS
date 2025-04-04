@@ -168,7 +168,7 @@ const createHtml = (oldVersion, newVersion) => {
                 // Function to save changes
                 window.saveChanges = async function() {
                     try {
-                        const updatedData = JSON.parse(window.newEditor.getValue());
+                        const updatedData = JSON.parse(window.editEditor.getValue());
                         const response = await fetch('/save', {
                             method: 'POST',
                             headers: {
